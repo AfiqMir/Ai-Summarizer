@@ -12,10 +12,26 @@ const Summarizer = ({
   wordCount,
   setWordCount
 }) => {
+
+  // Fungsi untuk export ke TXT
+  const handleExportTxt = () => {
+    if (!summary) return;
+    const blob = new Blob([summary], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "summary.txt";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <>
       <p className="mb-4 text-lg">Masukkan teks untuk diringkas:</p>
-      
+
       {/* Dropdown model */}
       <select
         value={model}
@@ -31,7 +47,7 @@ const Summarizer = ({
         </option>
       </select>
 
-      {/* Input jumlah kata */}
+      {/* Input word count */}
       <div className="mb-4">
         <label className="block mb-1 font-medium text-gray-700">
           Jumlah Kata Ringkasan (opsional):
@@ -47,7 +63,7 @@ const Summarizer = ({
         />
       </div>
 
-      {/* Textarea dan tombol */}
+      {/* Input teks & tombol */}
       <div className="flex flex-col sm:flex-row gap-4">
         <textarea
           value={inputText}
@@ -69,10 +85,19 @@ const Summarizer = ({
           >
             Reset
           </button>
+          <button
+            onClick={handleExportTxt}
+            disabled={!summary}
+            className={`px-6 py-2 text-white rounded transition cursor-pointer ${
+              summary ? "bg-green-600 hover:bg-green-700" : "bg-gray-400 cursor-not-allowed"
+            }`}
+          >
+            Export TXT
+          </button>
         </div>
       </div>
 
-      {/* Output hasil ringkasan */}
+      {/* Output ringkasan */}
       <section className="mt-8 bg-white p-4 rounded shadow">
         <h2 className="text-xl font-semibold mb-2">Hasil Ringkasan</h2>
         <div className="text-gray-700">
