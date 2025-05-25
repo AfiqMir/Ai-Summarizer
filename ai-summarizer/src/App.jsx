@@ -81,6 +81,7 @@ const App = () => {
           handleReset={handleReset}
           model={model}
           setModel={setModel}
+          loading={loading}
         />
         <History history={history} handleDelete={handleDelete} />
       </main>

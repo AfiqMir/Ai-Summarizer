@@ -16,7 +16,7 @@ const History = ({ history, handleDelete }) => {
               </span>
               <button
                 onClick={() => handleDelete(index)}
-                className="ml-4 px-2 py-1 bg-red-400 text-white rounded hover:bg-red-500 transition"
+                className="ml-4 px-2 py-1 bg-red-400 text-white rounded hover:bg-red-500 transition cursor-pointer"
               >
                 Delete
               </button>

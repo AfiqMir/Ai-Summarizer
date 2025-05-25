@@ -8,6 +8,7 @@ const Summarizer = ({
   handleReset,
   model,
   setModel,
+  loading
 }) => {
   return (
     <>
@@ -36,13 +37,13 @@ const Summarizer = ({
         <div className="flex flex-col gap-2">
           <button
             onClick={handleSummarize}
-            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition cursor-pointer"
           >
             Ringkas
           </button>
           <button
             onClick={handleReset}
-            className="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
+            className="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition cursor-pointer"
           >
             Reset
           </button>
@@ -50,10 +51,18 @@ const Summarizer = ({
       </div>
       <section className="mt-8 bg-white p-4 rounded shadow">
         <h2 className="text-xl font-semibold mb-2">Hasil Ringkasan</h2>
-        <p className="text-gray-700">
-          {<ReactMarkdown>{summary}</ReactMarkdown> ||
-            "Hasil ringkasan teks akan muncul di sini setelah proses ringkasan selesai."}
-        </p>
+        <div className="text-gray-700">
+            {summary ? (
+                <ReactMarkdown>{summary}</ReactMarkdown>
+             ) : loading ? (
+            <div className="flex items-center justify-center py-4">
+                <div
+                     className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"
+                ></div>
+                <span className="ml-3">Memproses ringkasan...</span>
+            </div>
+            ) : ( "Hasil ringkasan teks akan muncul di sini setelah proses ringkasan selesai." )}
+        </div>
       </section>
     </>
   );
