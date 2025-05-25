@@ -1,4 +1,7 @@
+import { AiOutlineFileText } from "react-icons/ai";
+import { FiCopy } from "react-icons/fi"; 
 import ReactMarkdown from "react-markdown";
+import { useState } from "react";
 
 const Summarizer = ({
   inputText,
@@ -10,15 +13,14 @@ const Summarizer = ({
   setModel,
   loading,
   wordCount,
-  setWordCount
+  setWordCount,
 }) => {
+  const [copied, setCopied] = useState(false);
 
-  // Fungsi untuk export ke TXT
   const handleExportTxt = () => {
     if (!summary) return;
     const blob = new Blob([summary], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-
     const link = document.createElement("a");
     link.href = url;
     link.download = "summary.txt";
@@ -28,30 +30,32 @@ const Summarizer = ({
     URL.revokeObjectURL(url);
   };
 
+  const handleCopy = () => {
+    if (!summary) return;
+    navigator.clipboard.writeText(summary);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <>
-      <p className="mb-4 text-lg">Masukkan teks untuk diringkas:</p>
+    <div className="bg-white rounded-xl shadow-lg p-6 max-w-5xl mx-auto mt-8 space-y-6">
+      <h1 className="text-2xl font-bold text-slate-800">Ringkasan Teks Otomatis</h1>
 
-      {/* Dropdown model */}
-      <select
-        value={model}
-        onChange={(e) => setModel(e.target.value)}
-        className="mb-4 p-2 border border-gray-300 rounded"
-      >
-        <option value="deepseek/deepseek-chat-v3-0324:free">DeepSeek V3</option>
-        <option value="meta-llama/llama-3.3-70b-instruct:free">
-          Llama 3.3 70B Instruct (Meta)
-        </option>
-        <option value="google/gemini-2.0-flash-exp:free">
-          Gemini Flash 2.0 Experimental (Google)
-        </option>
-      </select>
+      <div className="flex flex-col sm:flex-row items-center gap-4">
+        <label className="text-slate-700 font-medium">Model AI:</label>
+        <select
+          value={model}
+          onChange={(e) => setModel(e.target.value)}
+          className="p-2 border border-slate-300 rounded-lg w-full sm:w-auto"
+        >
+          <option value="deepseek/deepseek-chat-v3-0324:free">DeepSeek V3</option>
+          <option value="meta-llama/llama-3.3-70b-instruct:free">LLaMA 3.3 (Meta)</option>
+          <option value="google/gemini-2.0-flash-exp:free">Gemini Flash 2.0</option>
+        </select>
+      </div>
 
-      {/* Input word count */}
-      <div className="mb-4">
-        <label className="block mb-1 font-medium text-gray-700">
-          Jumlah Kata Ringkasan (opsional):
-        </label>
+      <div>
+        <label className="text-slate-700 font-medium mb-1 block">Jumlah Kata Ringkasan (opsional):</label>
         <input
           type="number"
           min="10"
@@ -59,61 +63,70 @@ const Summarizer = ({
           value={wordCount}
           onChange={(e) => setWordCount(e.target.value)}
           placeholder="Contoh: 50"
-          className="p-2 border border-gray-300 rounded w-full"
+          className="p-2 border border-slate-300 rounded-lg w-full"
         />
       </div>
 
-      {/* Input teks & tombol */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <textarea
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          rows="5"
-          placeholder="Masukkan teks di sini"
-        ></textarea>
-        <div className="flex flex-col gap-2">
-          <button
-            onClick={handleSummarize}
-            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition cursor-pointer"
-          >
-            Ringkas
-          </button>
-          <button
-            onClick={handleReset}
-            className="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition cursor-pointer"
-          >
-            Reset
-          </button>
-          <button
-            onClick={handleExportTxt}
-            disabled={!summary}
-            className={`px-6 py-2 text-white rounded transition cursor-pointer ${
-              summary ? "bg-green-600 hover:bg-green-700" : "bg-gray-400 cursor-not-allowed"
-            }`}
-          >
-            Export TXT
-          </button>
-        </div>
+      <textarea
+        value={inputText}
+        onChange={(e) => setInputText(e.target.value)}
+        className="w-full p-4 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        rows="6"
+        placeholder="Masukkan teks di sini..."
+      ></textarea>
+
+      <div className="flex flex-wrap gap-3">
+        <button
+          onClick={handleSummarize}
+          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+        >
+          Ringkas
+        </button>
+        <button
+          onClick={handleReset}
+          className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition"
+        >
+          Reset
+        </button>
+        <button
+          onClick={handleExportTxt}
+          disabled={!summary}
+          className={`flex items-center gap-2 px-6 py-2 text-white rounded-lg transition ${
+            summary ? "bg-green-600 hover:bg-green-700" : "bg-slate-400 cursor-not-allowed"
+          }`}
+        >
+          <AiOutlineFileText className="text-lg" />
+          Export TXT
+        </button>
       </div>
 
-      {/* Output ringkasan */}
-      <section className="mt-8 bg-white p-4 rounded shadow">
-        <h2 className="text-xl font-semibold mb-2">Hasil Ringkasan</h2>
-        <div className="text-gray-700">
+      <div className="mt-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-xl font-semibold text-slate-800">Hasil Ringkasan</h2>
+          {summary && (
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm"
+            >
+              <FiCopy className="text-base" />
+              {copied ? "Tersalin!" : "Salin"}
+            </button>
+          )}
+        </div>
+        <div className="text-slate-700 min-h-[100px]">
           {summary ? (
             <ReactMarkdown>{summary}</ReactMarkdown>
           ) : loading ? (
-            <div className="flex items-center justify-center py-4">
-              <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-              <span className="ml-3">Memproses ringkasan...</span>
+            <div className="flex items-center py-4">
+              <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <span className="ml-3 text-blue-600">Memproses ringkasan...</span>
             </div>
           ) : (
-            "Hasil ringkasan teks akan muncul di sini setelah proses ringkasan selesai."
+            <p className="text-slate-500">Hasil ringkasan akan muncul di sini.</p>
           )}
         </div>
-      </section>
-    </>
+      </div>
+    </div>
   );
 };
 

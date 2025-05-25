@@ -28,7 +28,7 @@ const handleSummarize = async () => {
 
   const wordInstruction = wordCount
     ? `Summarize the following text into approximately ${wordCount} words.`
-    : `Summarize the following text.`;
+    : `Summarize the following text. without any additions`;
 
   try {
     const response = await fetch(
