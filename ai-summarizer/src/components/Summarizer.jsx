@@ -8,11 +8,15 @@ const Summarizer = ({
   handleReset,
   model,
   setModel,
-  loading
+  loading,
+  wordCount,
+  setWordCount
 }) => {
   return (
     <>
       <p className="mb-4 text-lg">Masukkan teks untuk diringkas:</p>
+      
+      {/* Dropdown model */}
       <select
         value={model}
         onChange={(e) => setModel(e.target.value)}
@@ -26,6 +30,24 @@ const Summarizer = ({
           Gemini Flash 2.0 Experimental (Google)
         </option>
       </select>
+
+      {/* Input jumlah kata */}
+      <div className="mb-4">
+        <label className="block mb-1 font-medium text-gray-700">
+          Jumlah Kata Ringkasan (opsional):
+        </label>
+        <input
+          type="number"
+          min="10"
+          max="1000"
+          value={wordCount}
+          onChange={(e) => setWordCount(e.target.value)}
+          placeholder="Contoh: 50"
+          className="p-2 border border-gray-300 rounded w-full"
+        />
+      </div>
+
+      {/* Textarea dan tombol */}
       <div className="flex flex-col sm:flex-row gap-4">
         <textarea
           value={inputText}
@@ -49,19 +71,21 @@ const Summarizer = ({
           </button>
         </div>
       </div>
+
+      {/* Output hasil ringkasan */}
       <section className="mt-8 bg-white p-4 rounded shadow">
         <h2 className="text-xl font-semibold mb-2">Hasil Ringkasan</h2>
         <div className="text-gray-700">
-            {summary ? (
-                <ReactMarkdown>{summary}</ReactMarkdown>
-             ) : loading ? (
+          {summary ? (
+            <ReactMarkdown>{summary}</ReactMarkdown>
+          ) : loading ? (
             <div className="flex items-center justify-center py-4">
-                <div
-                     className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"
-                ></div>
-                <span className="ml-3">Memproses ringkasan...</span>
+              <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <span className="ml-3">Memproses ringkasan...</span>
             </div>
-            ) : ( "Hasil ringkasan teks akan muncul di sini setelah proses ringkasan selesai." )}
+          ) : (
+            "Hasil ringkasan teks akan muncul di sini setelah proses ringkasan selesai."
+          )}
         </div>
       </section>
     </>

@@ -9,6 +9,8 @@ const App = () => {
   const [history, setHistory] = useState([]);
   const [model, setModel] = useState("deepseek/deepseek-chat-v3-0324:free");
   const [loading, setLoading] = useState(false);
+  const [wordCount, setWordCount] = useState(""); // jumlah kata yang diinginkan
+
 
 
   // Ambil riwayat dari localStorage saat komponen pertama kali dimuat
@@ -18,45 +20,49 @@ const App = () => {
     setHistory(storedHistory);
   }, []);
 
-  const handleSummarize = async () => {
-    if (inputText.trim() === "") return;
+const handleSummarize = async () => {
+  if (inputText.trim() === "") return;
 
-    setSummary("");
-    setLoading(true);
-    // Kirim teks ke API untuk diringkas
-    try {
-      const response = await fetch(
-        "https://openrouter.ai/api/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: model,
-            messages: [
-              {
-                role: "user",
-                content: `Summarize the following text without any addition answer. Answer in the language the user speaks:\n${inputText}`,
-              },
-            ],
-          }),
-        }
-      );
+  setSummary("");
+  setLoading(true);
 
-      const data = await response.json();
-      console.log(data);
-      setSummary(data.choices[0].message.content);
-      const newHistory = [...history, data.choices[0].message.content];
-      setHistory(newHistory);
-      localStorage.setItem("summaryHistory", JSON.stringify(newHistory));
-    } catch (error) {
-      console.error("Gagal mengambil data ringkasan:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const wordInstruction = wordCount
+    ? `Summarize the following text into approximately ${wordCount} words.`
+    : `Summarize the following text.`;
+
+  try {
+    const response = await fetch(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [
+            {
+              role: "user",
+              content: `${wordInstruction} Answer in the language the user speaks:\n${inputText}`,
+            },
+          ],
+        }),
+      }
+    );
+
+    const data = await response.json();
+    setSummary(data.choices[0].message.content);
+    const newHistory = [...history, data.choices[0].message.content];
+    setHistory(newHistory);
+    localStorage.setItem("summaryHistory", JSON.stringify(newHistory));
+  } catch (error) {
+    console.error("Gagal mengambil data ringkasan:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleReset = () => {
     setInputText("");
@@ -82,6 +88,8 @@ const App = () => {
           model={model}
           setModel={setModel}
           loading={loading}
+          wordCount={wordCount}
+          setWordCount={setWordCount}
         />
         <History history={history} handleDelete={handleDelete} />
       </main>
