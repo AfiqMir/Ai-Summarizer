@@ -1,7 +1,8 @@
 import { AiOutlineFileText } from "react-icons/ai";
-import { FiCopy } from "react-icons/fi"; 
+import { FiCopy } from "react-icons/fi";
 import ReactMarkdown from "react-markdown";
 import { useState } from "react";
+import Tesseract from "tesseract.js";
 
 const Summarizer = ({
   inputText,
@@ -16,6 +17,7 @@ const Summarizer = ({
   setWordCount,
 }) => {
   const [copied, setCopied] = useState(false);
+  const [ocrLoading, setOcrLoading] = useState(false);
 
   const handleExportTxt = () => {
     if (!summary) return;
@@ -35,6 +37,24 @@ const Summarizer = ({
     navigator.clipboard.writeText(summary);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setOcrLoading(true);
+
+    Tesseract.recognize(file, "ind", {
+      logger: (m) => console.log(m),
+    })
+      .then(({ data: { text } }) => {
+        setInputText(text);
+      })
+      .catch((err) => {
+        console.error("OCR Error:", err);
+        alert("Gagal membaca teks dari gambar.");
+      })
+      .finally(() => setOcrLoading(false));
   };
 
   return (
@@ -98,6 +118,20 @@ const Summarizer = ({
           <AiOutlineFileText className="text-lg" />
           Export TXT
         </button>
+      </div>
+
+      {/* OCR Section */}
+      <div className="mt-4">
+        <label className="block text-slate-700 font-medium mb-1">Unggah Gambar untuk diringkas (opsional):</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          className="block w-full text-sm text-slate-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+        />
+        {ocrLoading && (
+          <p className="text-blue-600 text-sm mt-2 animate-pulse">Membaca teks dari gambar...</p>
+        )}
       </div>
 
       <div className="mt-6 p-4 bg-slate-50 rounded-lg border border-slate-200">

@@ -9,38 +9,32 @@ const App = () => {
   const [history, setHistory] = useState([]);
   const [model, setModel] = useState("deepseek/deepseek-chat-v3-0324:free");
   const [loading, setLoading] = useState(false);
-  const [wordCount, setWordCount] = useState(""); // jumlah kata yang diinginkan
+  const [wordCount, setWordCount] = useState("");
 
-
-
-  // Ambil riwayat dari localStorage saat komponen pertama kali dimuat
   useEffect(() => {
-    const storedHistory =
-      JSON.parse(localStorage.getItem("summaryHistory")) || [];
+    const storedHistory = JSON.parse(localStorage.getItem("summaryHistory")) || [];
     setHistory(storedHistory);
   }, []);
 
-const handleSummarize = async () => {
-  if (inputText.trim() === "") return;
+  const handleSummarize = async () => {
+    if (inputText.trim() === "") return;
 
-  setSummary("");
-  setLoading(true);
+    setSummary("");
+    setLoading(true);
 
-  const wordInstruction = wordCount
-    ? `Summarize the following text into approximately ${wordCount} words.`
-    : `Summarize the following text. without any additions`;
+    const wordInstruction = wordCount
+      ? `Summarize the following text into approximately ${wordCount} words.`
+      : `Summarize the following text without any additions.`;
 
-  try {
-    const response = await fetch(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
+    try {
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
         },
         body: JSON.stringify({
-          model: model,
+          model,
           messages: [
             {
               role: "user",
@@ -48,21 +42,27 @@ const handleSummarize = async () => {
             },
           ],
         }),
+      });
+
+      const data = await response.json();
+
+      if (data?.choices && data.choices[0]?.message?.content) {
+        const result = data.choices[0].message.content;
+        setSummary(result);
+        const newHistory = [...history, result];
+        setHistory(newHistory);
+        localStorage.setItem("summaryHistory", JSON.stringify(newHistory));
+      } else {
+        console.error("Unexpected response structure:", data);
+        alert("Ringkasan gagal diambil. Silakan coba lagi.");
       }
-    );
-
-    const data = await response.json();
-    setSummary(data.choices[0].message.content);
-    const newHistory = [...history, data.choices[0].message.content];
-    setHistory(newHistory);
-    localStorage.setItem("summaryHistory", JSON.stringify(newHistory));
-  } catch (error) {
-    console.error("Gagal mengambil data ringkasan:", error);
-  } finally {
-    setLoading(false);
-  }
-};
-
+    } catch (error) {
+      console.error("Gagal mengambil data ringkasan:", error);
+      alert("Terjadi kesalahan saat menghubungi server.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleReset = () => {
     setInputText("");

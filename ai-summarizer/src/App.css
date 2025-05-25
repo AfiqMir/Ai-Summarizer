@@ -1,10 +1,14 @@
+/* Root wrapper styling */
 #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  background-color: #0d1117; /* dark background */
+  color: #e5e7eb; /* light text */
 }
 
+/* Logo styles */
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -12,12 +16,13 @@
   transition: filter 300ms;
 }
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+  filter: drop-shadow(0 0 2em #7c3aedaa); /* purple glow for dark bg */
 }
 .logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  filter: drop-shadow(0 0 2em #61dafb); /* React color */
 }
 
+/* Spin animation for React logo */
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);
@@ -27,16 +32,25 @@
   }
 }
 
+/* Respect reduced motion preference */
 @media (prefers-reduced-motion: no-preference) {
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
   }
 }
 
+/* Card component styling */
 .card {
   padding: 2em;
+  background-color: #1c1f26; /* dark card background */
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
+/* Read-the-docs link */
 .read-the-docs {
-  color: #888;
+  color: #9ca3af; /* soft gray for readability */
+}
+.read-the-docs:hover {
+  color: #c084fc; /* subtle purple accent */
 }
